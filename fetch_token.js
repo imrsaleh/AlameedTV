@@ -1,7 +1,7 @@
 const express = require('express');
 const puppeteer = require('puppeteer');
 const app = express();
-const PORT = 0.0.0.0;
+const PORT = '0.0.0.0';
 
 async function fetchAndProcessPage(url) {
     const browser = await puppeteer.launch();
