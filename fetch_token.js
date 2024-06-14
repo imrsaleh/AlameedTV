@@ -5,8 +5,8 @@ const PORT = 3000;
 
 async function fetchAndProcessPage(url) {
     const browser = await chromium.launch({
-        executablePath: '/usr/bin/google-chrome', // أو '/usr/bin/chromium-browser' حسب البيئة
-        args: ['--no-sandbox', '--disable-setuid-sandbox']
+        executablePath: require('chromium').path,
+        args: ['--no-sandbox', '--disable-setuid-sandbox'],
     });
     const page = await browser.newPage();
 
