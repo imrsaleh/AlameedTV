@@ -1,10 +1,10 @@
 const express = require('express');
-const puppeteer = require('puppeteer');
+const { chromium } = require('playwright');
 const app = express();
 const PORT = 3000;
 
 async function fetchAndProcessPage(url) {
-    const browser = await puppeteer.launch();
+    const browser = await chromium.launch();
     const page = await browser.newPage();
 
     const signatureFound = new Promise((resolve, reject) => {
@@ -48,7 +48,7 @@ async function fetchAndProcessPage(url) {
     return signature;
 }
 
-app.get('/drm/api/widevine', async (req, res) => {
+app.get('/', async (req, res) => {
     try {
         const url = 'https://shahid.mbc.net/en/player/episodes/Jak-Al-Elm-season-1-episode-1/id-1018516';
         const signature = await fetchAndProcessPage(url);
