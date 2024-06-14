@@ -1,18 +1,17 @@
-// install requirments: npm install puppeteer
-
+const express = require('express');
 const puppeteer = require('puppeteer');
+const app = express();
+const PORT = 3000;
 
 async function fetchAndProcessPage(url) {
     const browser = await puppeteer.launch();
     const page = await browser.newPage();
 
     const signatureFound = new Promise((resolve, reject) => {
-        // التنصت على الطلبات واعتراض الردود
         page.on('response', async response => {
             const requestUrl = response.url();
             if (requestUrl.startsWith('https://api2.shahid.net/proxy/v2.1/playout/new/drm?')) {
                 try {
-                    // تجنب محاولة قراءة نص الطلبات المسبقة
                     if (response.request().method() === 'OPTIONS') {
                         return;
                     }
@@ -20,12 +19,11 @@ async function fetchAndProcessPage(url) {
                     const responseHeaders = response.headers();
                     let responseBody;
                     if (responseHeaders['content-type'] && responseHeaders['content-type'].includes('application/json')) {
-                        responseBody = await response.json();  // قراءة الرد ككائن JSON
+                        responseBody = await response.json();
                     } else {
-                        // محاولة قراءة النص مباشرةً إذا كان `Content-Type` غير محدد أو غير متوقع
                         responseBody = await response.text();
                         try {
-                            responseBody = JSON.parse(responseBody);  // محاولة تحويل النص إلى JSON
+                            responseBody = JSON.parse(responseBody);
                         } catch (error) {
                             console.log(`Response from ${requestUrl} is not JSON, it is ${responseHeaders['content-type'] || 'undefined'}`);
                             return;
@@ -34,9 +32,7 @@ async function fetchAndProcessPage(url) {
 
                     const signature = responseBody.signature;
                     if (signature) {
-                        // طباعة signature وإيقاف السكربت
-                        console.log(`${signature}`);
-                        resolve();
+                        resolve(signature);
                     }
                 } catch (error) {
                     console.error(`Error reading response body from ${requestUrl}:`, error);
@@ -47,17 +43,21 @@ async function fetchAndProcessPage(url) {
     });
 
     await page.goto(url, { waitUntil: 'networkidle2' });
-
-    // انتظار العثور على signature
-    await signatureFound;
-
-    // إغلاق المتصفح بعد العثور على signature
+    const signature = await signatureFound;
     await browser.close();
-    process.exit();  // إنهاء العملية
+    return signature;
 }
 
-// URL of the target webpage
-const url = 'https://shahid.mbc.net/en/player/episodes/Jak-Al-Elm-season-1-episode-1/id-1018516';
+app.get('/', async (req, res) => {
+    try {
+        const url = 'https://shahid.mbc.net/en/player/episodes/Jak-Al-Elm-season-1-episode-1/id-1018516';
+        const signature = await fetchAndProcessPage(url);
+        res.json({ signature });
+    } catch (error) {
+        res.status(500).json({ error: 'Error occurred while fetching the page' });
+    }
+});
 
-// Fetch and process the page
-fetchAndProcessPage(url);
+app.listen(PORT, () => {
+    console.log(`Server is running on http://localhost:${PORT}`);
+});
