@@ -1,7 +1,8 @@
 const express = require('express');
 const puppeteer = require('puppeteer');
 const app = express();
-const PORT = '0.0.0.0';
+const HOST = '0.0.0.0';
+const PORT = process.env.PORT || 3000; // استخدم البورت الموفر في المتغيرات البيئية أو القيمة الافتراضية 3000
 
 async function fetchAndProcessPage(url) {
     const browser = await puppeteer.launch();
@@ -58,6 +59,6 @@ app.get('/', async (req, res) => {
     }
 });
 
-app.listen(PORT, () => {
-    console.log(`Server is running on http://localhost:${PORT}`);
+app.listen(PORT, HOST, () => {
+    console.log(`Server is running on http://${HOST}:${PORT}`);
 });
