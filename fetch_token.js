@@ -5,11 +5,18 @@ const app = express();
 const PORT = 3000;
 
 async function fetchAndProcessPage(url) {
-    const browser = await playwright.chromium.launch({
-        args: chromium.args,
-        executablePath: await chromium.executablePath,
-        headless: chromium.headless,
-    });
+    let browser;
+    try {
+        browser = await playwright.chromium.launch({
+            args: chromium.args,
+            executablePath: await chromium.executablePath,
+            headless: chromium.headless,
+        });
+    } catch (error) {
+        console.error('Error launching Chromium:', error);
+        throw error;
+    }
+
     const page = await browser.newPage();
 
     const signatureFound = new Promise((resolve, reject) => {
