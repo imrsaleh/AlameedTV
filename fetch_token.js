@@ -1,29 +1,18 @@
-const express = require('express');
-const chromium = require('chrome-aws-lambda');
-const playwright = require('playwright-core');
-const app = express();
-const PORT = 3000;
+// install requirments: npm install puppeteer
+
+const puppeteer = require('puppeteer');
 
 async function fetchAndProcessPage(url) {
-    let browser;
-    try {
-        browser = await playwright.chromium.launch({
-            args: chromium.args,
-            executablePath: await chromium.executablePath,
-            headless: chromium.headless,
-        });
-    } catch (error) {
-        console.error('Error launching Chromium:', error);
-        throw error;
-    }
-
+    const browser = await puppeteer.launch();
     const page = await browser.newPage();
 
     const signatureFound = new Promise((resolve, reject) => {
+        // التنصت على الطلبات واعتراض الردود
         page.on('response', async response => {
             const requestUrl = response.url();
             if (requestUrl.startsWith('https://api2.shahid.net/proxy/v2.1/playout/new/drm?')) {
                 try {
+                    // تجنب محاولة قراءة نص الطلبات المسبقة
                     if (response.request().method() === 'OPTIONS') {
                         return;
                     }
@@ -31,11 +20,12 @@ async function fetchAndProcessPage(url) {
                     const responseHeaders = response.headers();
                     let responseBody;
                     if (responseHeaders['content-type'] && responseHeaders['content-type'].includes('application/json')) {
-                        responseBody = await response.json();
+                        responseBody = await response.json();  // قراءة الرد ككائن JSON
                     } else {
+                        // محاولة قراءة النص مباشرةً إذا كان `Content-Type` غير محدد أو غير متوقع
                         responseBody = await response.text();
                         try {
-                            responseBody = JSON.parse(responseBody);
+                            responseBody = JSON.parse(responseBody);  // محاولة تحويل النص إلى JSON
                         } catch (error) {
                             console.log(`Response from ${requestUrl} is not JSON, it is ${responseHeaders['content-type'] || 'undefined'}`);
                             return;
@@ -44,7 +34,9 @@ async function fetchAndProcessPage(url) {
 
                     const signature = responseBody.signature;
                     if (signature) {
-                        resolve(signature);
+                        // طباعة signature وإيقاف السكربت
+                        console.log(`${signature}`);
+                        resolve();
                     }
                 } catch (error) {
                     console.error(`Error reading response body from ${requestUrl}:`, error);
@@ -54,23 +46,18 @@ async function fetchAndProcessPage(url) {
         });
     });
 
-    await page.goto(url, { waitUntil: 'networkidle' });
-    const signature = await signatureFound;
+    await page.goto(url, { waitUntil: 'networkidle2' });
+
+    // انتظار العثور على signature
+    await signatureFound;
+
+    // إغلاق المتصفح بعد العثور على signature
     await browser.close();
-    return signature;
+    process.exit();  // إنهاء العملية
 }
 
-app.get('/', async (req, res) => {
-    try {
-        const url = 'https://shahid.mbc.net/en/player/episodes/Jak-Al-Elm-season-1-episode-1/id-1018516';
-        const signature = await fetchAndProcessPage(url);
-        res.json({ signature });
-    } catch (error) {
-        console.error('Error occurred:', error);  // تسجيل تفاصيل الخطأ في السجل
-        res.status(500).json({ error: 'Error occurred while fetching the page', details: error.message });
-    }
-});
+// URL of the target webpage
+const url = 'https://shahid.mbc.net/en/player/episodes/Jak-Al-Elm-season-1-episode-1/id-1018516';
 
-app.listen(PORT, () => {
-    console.log(`Server is running on http://localhost:${PORT}`);
-});
+// Fetch and process the page
+fetchAndProcessPage(url);
