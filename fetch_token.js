@@ -42,7 +42,7 @@ async function fetchAndProcessPage(url) {
         });
     });
 
-    await page.goto(url, { waitUntil: 'networkidle2' });
+    await page.goto(url, { waitUntil: 'networkidle' });
     const signature = await signatureFound;
     await browser.close();
     return signature;
@@ -54,7 +54,8 @@ app.get('/', async (req, res) => {
         const signature = await fetchAndProcessPage(url);
         res.json({ signature });
     } catch (error) {
-        res.status(500).json({ error: 'Error occurred while fetching the page' });
+        console.error('Error occurred:', error);  // تسجيل تفاصيل الخطأ في السجل
+        res.status(500).json({ error: 'Error occurred while fetching the page', details: error.message });
     }
 });
 
