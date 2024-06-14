@@ -55,7 +55,7 @@ app.get('/', async (req, res) => {
         const signature = await fetchAndProcessPage(url);
         res.json({ signature });
     } catch (error) {
-        res.status(500).json({ error: 'Error occurred while fetching the page' });
+        res.status(500).json({ error: 'Error occurred while fetching the page', details: error.message });
     }
 });
 
