@@ -1,12 +1,14 @@
 const express = require('express');
-const { chromium } = require('playwright');
+const chromium = require('chrome-aws-lambda');
+const playwright = require('playwright-core');
 const app = express();
 const PORT = 3000;
 
 async function fetchAndProcessPage(url) {
-    const browser = await chromium.launch({
-        executablePath: require('chromium').path,
-        args: ['--no-sandbox', '--disable-setuid-sandbox'],
+    const browser = await playwright.chromium.launch({
+        args: chromium.args,
+        executablePath: await chromium.executablePath,
+        headless: chromium.headless,
     });
     const page = await browser.newPage();
 
