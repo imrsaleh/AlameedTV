@@ -2,10 +2,12 @@ const express = require('express');
 const puppeteer = require('puppeteer');
 const app = express();
 const HOST = '0.0.0.0';
-const PORT = process.env.PORT || 3000; // استخدم البورت الموفر في المتغيرات البيئية أو القيمة الافتراضية 3000
+const PORT = process.env.PORT || 3000;
 
 async function fetchAndProcessPage(url) {
-    const browser = await puppeteer.launch({ args: ['--no-sandbox'] });
+    const browser = await puppeteer.launch({
+        args: ['--no-sandbox', '--disable-setuid-sandbox']
+    });
     const page = await browser.newPage();
 
     const signatureFound = new Promise((resolve, reject) => {
