@@ -53,7 +53,7 @@ async function fetchAndProcessPage(url) {
 
 app.get('/', async (req, res) => {
     try {
-        const url = 'https://shahid.mbc.net/en/player/episodes/Jak-Al-Elm-season-1-episode-1/id-1018516';
+        const url = 'https://shahid.mbc.net/en/livestream/Thikrayat/livechannel-946945';
         const signature = await fetchAndProcessPage(url);
         res.json({ signature });
     } catch (error) {
