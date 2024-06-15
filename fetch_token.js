@@ -6,7 +6,8 @@ const PORT = process.env.PORT || 3000;
 
 async function fetchAndProcessPage(url) {
     const browser = await puppeteer.launch({
-        args: ['--no-sandbox', '--disable-setuid-sandbox']
+        args: ['--no-sandbox', '--disable-setuid-sandbox'],
+        executablePath: process.env.CHROME_PATH // Ensure this environment variable is set to the path of Chrome
     });
     const page = await browser.newPage();
 
