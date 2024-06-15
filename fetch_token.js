@@ -5,7 +5,7 @@ const HOST = '0.0.0.0';
 const PORT = process.env.PORT || 3000; // استخدم البورت الموفر في المتغيرات البيئية أو القيمة الافتراضية 3000
 
 async function fetchAndProcessPage(url) {
-    const browser = await puppeteer.launch();
+    const browser = await puppeteer.launch({ args: ['--no-sandbox'] });
     const page = await browser.newPage();
 
     const signatureFound = new Promise((resolve, reject) => {
