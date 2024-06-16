@@ -1,10 +1,9 @@
 from quart import Quart, jsonify
 from playwright.async_api import async_playwright, TimeoutError as PlaywrightTimeoutError
 import asyncio
+import os
 
 app = Quart(__name__)
-HOST = '0.0.0.0'
-PORT = 3000
 
 async def fetch_and_process_page(url):
     async with async_playwright() as p:
@@ -36,7 +35,7 @@ async def fetch_and_process_page(url):
 
                         signature = response_body.get('signature')
                         if signature:
-                         #   print(f"Signature found: {signature}")
+                            print(f"Signature found: {signature}")
                             signature_event.set()
                     except Exception as e:
                         print(f"Error reading response body from {request_url}: {e}")
@@ -75,4 +74,5 @@ async def index():
         return jsonify({'error': str(e)}), 500
 
 if __name__ == '__main__':
-    app.run(host=HOST)
+    PORT = int(os.environ.get('PORT', 3000))
+    app.run(host='0.0.0.0', port=PORT)
