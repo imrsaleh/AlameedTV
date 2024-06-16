@@ -75,4 +75,4 @@ async def index():
         return jsonify({'error': str(e)}), 500
 
 if __name__ == '__main__':
-    app.run(host=HOST, port=PORT)
+    app.run(host=HOST)
