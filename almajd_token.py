@@ -1,7 +1,9 @@
 import requests
 from flask import Flask, send_file, redirect, request, abort, jsonify
+from flask_cors import CORS, cross_origin
 
 app = Flask(__name__)
+CORS(app)  # يمكنك تحديد الخيارات هنا إذا لزم الأمر
 PORT = 3000
 ip = '0.0.0.0'
 
@@ -46,6 +48,7 @@ def index():
 
 # الصفحة الرئيسية
 @app.route('/get/access_token')
+@cross_origin(origin='alameedtv.blogspot.com')  # يسمح فقط بالأصل المحدد
 def token():
     referer_header = request.headers.get('Referer')
     if referer_header != 'https://alameedtv.blogspot.com/':
