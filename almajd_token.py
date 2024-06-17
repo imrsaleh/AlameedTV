@@ -47,6 +47,9 @@ def index():
 # الصفحة الرئيسية
 @app.route('/get/access_token')
 def token():
+    referer_header = request.headers.get('Referer')
+    if referer_header != 'https://alameedtv.blogspot.com/':
+        abort(403)  # إذا لم يتطابق الهيدر، ارجع خطأ 403 Forbidden
     data = {"access_token": index()}
     return jsonify(data)
 
