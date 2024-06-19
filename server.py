@@ -4,7 +4,7 @@ from aiohttp import web
 
 from pyscripts import live, proxy, hadeftvauth
 
-ALLOWED_URL = "https://alameedtv.blogspot.com/"
+ALLOWED_URL = "https://alameedtv.blogspot.com"
 
 async def check_origin_middleware(app, handler):
     async def middleware_handler(request):
