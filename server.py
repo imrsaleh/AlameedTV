@@ -10,10 +10,10 @@ async def check_origin_middleware(app, handler):
     async def middleware_handler(request):
         origin = request.headers.get('Origin')
         referer = request.headers.get('Referer')
-        if not origin and not referer:
-            return web.Response(text="Unauthorized", status=403)
+        
         if origin != ALLOWED_URL and referer != ALLOWED_URL:
             return web.Response(text="Unauthorized", status=403)
+        
         return await handler(request)
     return middleware_handler
 
@@ -32,6 +32,9 @@ app.router.add_route('*', '/live/{url:.*}', live.handle_live)
 app.router.add_get('/proxy/{url:.*}', proxy.handle_proxy)
 app.router.add_route('*', '/hadeftv/get/auth', hadeftvauth.hadefauth)
 
+if __name__ == '__main__':
+    port = int(os.getenv("PORT", default=5000))
+    web.run_app(app, host='0.0.0.0', port=port)
 if __name__ == '__main__':
     port = int(os.getenv("PORT", default=5000))
     web.run_app(app, host='0.0.0.0', port=port)
