@@ -1,3 +1,4 @@
+import os
 import aiohttp
 from aiohttp import web
 
@@ -29,5 +30,6 @@ app.router.add_get('/proxy/{url:.*}', proxy.handle_proxy)
 app.router.add_route('*', '/hadeftv/get/auth', hadeftvauth.hadefauth)
 
 if __name__ == '__main__':
-    web.run_app(app, host='0.0.0.0')
+    port = int(os.getenv("PORT", default=5000))
+    web.run_app(app, host='0.0.0.0', port=port)
 
