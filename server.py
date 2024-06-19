@@ -29,5 +29,5 @@ app.router.add_get('/proxy/{url:.*}', proxy.handle_proxy)
 app.router.add_route('*', '/hadeftv/get/auth', hadeftvauth.hadefauth)
 
 if __name__ == '__main__':
-    web.run_app(app)
+    web.run_app(app, host='0.0.0.0', port=0)
 
