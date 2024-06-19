@@ -4,15 +4,16 @@ from aiohttp import web
 
 from pyscripts import live, proxy, hadeftvauth
 
-ALLOWED_URL = "https://alameedtv.blogspot.com"
+ALLOWED_ORIGIN = "https://alameedtv.blogspot.com"
+ALLOWED_REFERER = "https://alameedtv.blogspot.com/"
 
 async def check_origin_middleware(app, handler):
     async def middleware_handler(request):
         origin = request.headers.get('Origin')
         referer = request.headers.get('Referer')
         
-        # Allow if either Origin or Referer matches ALLOWED_URL
-        if origin == ALLOWED_URL or referer == ALLOWED_URL:
+        # Allow if either Origin or Referer matches their respective allowed values
+        if origin == ALLOWED_ORIGIN or referer == ALLOWED_REFERER:
             return await handler(request)
         
         # If neither matches, deny access
@@ -23,7 +24,7 @@ async def check_origin_middleware(app, handler):
 async def cors_middleware(app, handler):
     async def middleware_handler(request):
         response = await handler(request)
-        response.headers['Access-Control-Allow-Origin'] = ALLOWED_URL
+        response.headers['Access-Control-Allow-Origin'] = ALLOWED_ORIGIN
         response.headers['Access-Control-Allow-Methods'] = '*'
         response.headers['Access-Control-Allow-Headers'] = '*'
         return response
