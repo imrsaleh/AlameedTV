@@ -7,12 +7,10 @@ async def handle_live(request):
     headers = {'Accept-Encoding': 'identity'}
 
     async with aiohttp.ClientSession() as session:
-        async with session.head(target_url, headers=headers) as response:
-            if response.status != 200:
-                return web.Response(status=response.status)
+        async with session.get(target_url, headers=headers) as response:
+            headers = {key: value for key, value in response.headers.items()}
 
-            original_url = response.url # هذا السطر يحفظ عنوان الرابط الذي ادخله المستخدم
-            redirect_url = f'https://{url}'
-
-            return web.HTTPFound(location=redirect_url)
+            # السماح بتمرير البث بشكل مباشر بدون تحميل مسبق
+            response_body = await response.read()
+            return web.Response(body=response_body, headers=headers)
 
