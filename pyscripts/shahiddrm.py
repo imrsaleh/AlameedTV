@@ -58,9 +58,9 @@ class shahid_mbc_net:
 
 async def get_response(request):
     auth_params = {
-        'request': '{"assetId":1018667}',
+        'request': '{"assetId":999809}',
         'ts': int(time.time() * 1000),
-        'country': 'SA',
+        'country': 'ARE',
     }
 
     hash_value = shahid_mbc_net.generate_auth(auth_params)
