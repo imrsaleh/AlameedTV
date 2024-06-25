@@ -1,8 +1,13 @@
 import os
 import aiohttp
 from aiohttp import web
-
-from pyscripts import live, proxy, hadeftvauth
+import time
+import binascii
+import hashlib
+import hmac
+import re
+import requests
+from pyscripts import live, proxy, hadeftvauth, shahiddrm
 
 ALLOWED_ORIGIN = "https://www.alameedtv.xyz"
 ALLOWED_REFERER = "https://www.alameedtv.xyz/"
@@ -35,6 +40,7 @@ app = web.Application(middlewares=[check_origin_middleware, cors_middleware])
 app.router.add_route('*', '/live/{url:.*}', live.handle_live)
 app.router.add_get('/proxy/{url:.*}', proxy.handle_proxy)
 app.router.add_route('*', '/hadeftv/get/auth', hadeftvauth.hadefauth)
+app.router.add_get('/shahid/api/auth', shahiddrm.get_response)
 
 if __name__ == '__main__':
     port = int(os.getenv("PORT", default=5000))
