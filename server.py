@@ -40,7 +40,7 @@ app = web.Application(middlewares=[check_origin_middleware, cors_middleware])
 app.router.add_route('*', '/live/{url:.*}', live.handle_live)
 app.router.add_get('/proxy/{url:.*}', proxy.handle_proxy)
 app.router.add_route('*', '/hadeftv/get/auth', hadeftvauth.hadefauth)
-app.router.add_get('/shahid/api/auth', shahiddrm.get_response)
+app.router.add_route('*', '/shahid/api/auth', shahiddrm.shahid_api_auth_handler)
 
 if __name__ == '__main__':
     port = int(os.getenv("PORT", default=5000))
