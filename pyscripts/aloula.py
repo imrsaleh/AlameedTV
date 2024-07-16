@@ -2,7 +2,7 @@
 import aiohttp
 from aiohttp import web
 
-async def handle_request(request):
+async def handle_aloula(request):
     path = request.match_info.get('path')
 
     url_map = {
