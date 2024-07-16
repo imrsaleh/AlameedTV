@@ -27,4 +27,4 @@ async def fetch_stream(api_url):
         async with session.get(api_url, headers={'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36'}) as resp:
             data = await resp.json()
             redirect_url = data['streams']['hls']
-            return web.Response(text=redirect_url, status=200)
+            return web.Response(status=301, headers={'Location': redirect_url})
