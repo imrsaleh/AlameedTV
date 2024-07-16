@@ -8,6 +8,7 @@ import hmac
 import re
 import requests
 from pyscripts import live, proxy, hadeftvauth, shahiddrm
+from pyscripts.aloula import handle_aloula
 from pyscripts.rotana_net import (
     handle_rcinemaksa,
     handle_rcinemaeg,
@@ -67,6 +68,9 @@ app.router.add_get('/live-hls/rlbc', handle_rlbc)
 app.router.add_get('/live-hls/rclip', handle_rclip)
 app.router.add_get('/live-hls/alressalah', handle_alressalah)
 app.router.add_get('/live-hls/alressalahintl', handle_alressalahintl)
+
+#قنوات الاولى 
+app.router.add_get('/{path:.*}', handle_aloula)
 
 if __name__ == '__main__':
     port = int(os.getenv("PORT", default=5000))
