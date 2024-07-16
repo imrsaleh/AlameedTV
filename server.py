@@ -23,8 +23,8 @@ from pyscripts.rotana_net import (
 )
 
 
-ALLOWED_ORIGIN = "https://www.alameedtv.xyz"
-ALLOWED_REFERER = "https://www.alameedtv.xyz/"
+ALLOWED_ORIGIN = "http://alameedtv.blogspot.com"
+ALLOWED_REFERER = "http://alameedtv.blogspot.com/"
 
 async def check_origin_middleware(app, handler):
     async def middleware_handler(request):
