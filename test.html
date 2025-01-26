@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>fairplay Test</title>
+</head>
+<body>
+    <div id="player"></div>
+    <script src="https://content.jwplatform.com/libraries/KB5zFt7A.js"></script>
+    <script>
+        var playerInstance = jwplayer("player");
+        playerInstance.setup(
+        {
+            "sources": {
+                "type": "hls",
+                "file": "https://ssc-news-live-enc.edgenextcdn.net/out/v1/9002bae7e2a34317bbaf239489960a8a/index.m3u8",
+                "drm": {
+                    "fairplay": {
+                        "processSpcUrl": "https://shahid-ga.la.drm.cloud/acquire-license/fairplay?KID=3d049752-36a4-4f62-857d-181597705ee6&BrandGuid=2be49af0-6fbd-4511-8e11-3d6523185bb4&UserToken=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjEuNzM3ODUxOTk2RTksImRybVRva2VuSW5mbyI6eyJleHAiOiIyMDI1LTAxLTI2VDAwOjM5OjU2LjAwMDY2MyIsImtpZCI6WyIqIl0sInAiOnsicGVycyI6ZmFsc2UsImVkIjoiMjAyNS0wMS0yNlQwMDozOTo1Ni4wMDA2NjMiLCJleGMiOnsiRmFpcnBsYXlSZW50YWxEdXJhdGlvblNlY29uZHMiOjg2MDAwLCJGYWlycGxheUxlYXNlRHVyYXRpb25TZWNvbmRzIjo4NjAwMH19fX0.Z79Ed1jg6zRlLtuLLVQo34dEbf6zXkkegfYWJ1eGhUE",
+                        "certificateUrl": "https://shahid-ga.la.drm.cloud/certificate/fairplay?BrandGuid=2be49af0-6fbd-4511-8e11-3d6523185bb4"
+                    }
+                },
+            },
+            "primary": "html5",
+            "hlshtml": true,
+            "autostart": true
+        });
+    </script>
+</body>
+</html>
