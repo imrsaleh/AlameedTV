@@ -41,7 +41,7 @@ document.addEventListener("DOMContentLoaded", function () {
                                 buffered: 'rgba(255,255,255,.4)',
                                 played: 'rgb(255,0,0)',
                             },
-                            'enableTooltips': true,
+                            //'enableTooltips': true,
                         };
                         ui.configure(config);
 
