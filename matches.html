@@ -189,125 +189,221 @@
     <div class="matches-container" id="matchesContainer"></div>
 
     <script>
-        function getFormattedDates() {
-            const today = new Date();
-            const yesterday = new Date(today);
-            yesterday.setDate(today.getDate() - 1);
-            
-            const tomorrow = new Date(today);
-            tomorrow.setDate(today.getDate() + 1);
-
-            return {
-                today: today.toISOString().split('T')[0],
-                yesterday: yesterday.toISOString().split('T')[0],
-                tomorrow: tomorrow.toISOString().split('T')[0]
-            };
-        }
-
-        const API_URL = 'https://football-api.alameedtv.workers.dev/v1/json_format';
-
-        async function fetchMatches() {
-            try {
-                const response = await fetch(API_URL);
-                const data = await response.json();
-                renderMatches(data.games);
-                filterMatches('today');
-            } catch (error) {
-                console.error('خطأ في جلب البيانات:', error);
-                document.getElementById('matchesContainer').innerHTML = `
-                    <div class="error-message">
-                        حدث خطأ في تحميل البيانات، يرجى المحاولة لاحقًا
-                    </div>
-                `;
-            }
-        }
+    // دالة مساعدة للحصول على التواريخ المنسقة
+    function getFormattedDates() {
+        const today = new Date();
+        const yesterday = new Date(today);
+        yesterday.setDate(today.getDate() - 1);
         
-        function filterMatches(filterType) {
-            const dates = getFormattedDates();
-            const allCards = document.querySelectorAll('.match-card');
+        const tomorrow = new Date(today);
+        tomorrow.setDate(today.getDate() + 1);
 
-            allCards.forEach(card => {
-                const cardDate = card.dataset.date;
-                card.classList.remove('hidden');
+        return {
+            today: today.toISOString().split('T')[0],
+            yesterday: yesterday.toISOString().split('T')[0],
+            tomorrow: tomorrow.toISOString().split('T')[0]
+        };
+    }
 
-                if (filterType !== 'all') {
-                    const shouldShow = 
-                        (filterType === 'yesterday' && cardDate === dates.yesterday) ||
-                        (filterType === 'today' && cardDate === dates.today) ||
-                        (filterType === 'tomorrow' && cardDate === dates.tomorrow);
-
-                    if (!shouldShow) card.classList.add('hidden');
-                }
-            });
+    // دالة جلب البيانات من API
+    async function fetchMatches() {
+        try {
+            const response = await fetch("https://football-api.alameedtv.workers.dev/v1/json_format");
+            const data = await response.json();
+            updateMatches(data.games);
+        } catch (error) {
+            console.error('خطأ في جلب البيانات:', error);
+            showErrorMessage();
         }
+    }
 
-        function renderMatches(games) {
-            const container = document.getElementById('matchesContainer');
-            container.innerHTML = '';
+    // دالة عرض رسالة الخطأ
+    function showErrorMessage() {
+        const container = document.getElementById('matchesContainer');
+        container.innerHTML = `
+            <div class="error-message">
+                حدث خطأ في تحميل البيانات، يرجى المحاولة لاحقًا
+            </div>
+        `;
+    }
 
-            games.forEach(game => {
-                const matchCard = document.createElement('div');
-                matchCard.className = 'match-card';
-                matchCard.dataset.date = game.startyear;
+    // دالة التحديث الذكية للبطاقات
+    function updateMatches(newGames) {
+        const container = document.getElementById('matchesContainer');
+        const existingMatches = new Map();
+        
+        // حفظ البطاقات الحالية
+        container.childNodes.forEach(match => {
+            existingMatches.set(match.dataset.id, match);
+        });
 
-                const statusClass = game.statusText.includes('شوط') ? 'live-status' : '';
-                const gameTime = game.gameTime ? ` | ${game.gameTime}'` : '';
+        // حفظ التبويب النشط
+        const activeTab = document.querySelector('.tab-btn.active').dataset.filter;
 
-                const scoreContent = game.statusText === 'لم تبدأ' ? 
-                    `<div class="not-started">لم تبدأ</div>` :
-                    `<div class="score">${game.first_team_score} - ${game.secund_team_score}</div>`;
+        // معالجة البيانات الجديدة
+        newGames.forEach(game => {
+            const existingMatch = existingMatches.get(game.id);
 
-                matchCard.innerHTML = `
-                    <div class="competition-name">${game.competitionDisplayName}</div>
-                    
-                    <div class="teams-container">
-                        <div class="team">
-                            <img class="team-logo" 
-                                 src="${game.first_team_logo}" 
-                                 alt="${game.first_team}"
-                                 onerror="this.style.display='none'">
-                            <span class="team-name">${game.first_team}</span>
-                        </div>
-                        
-                        ${scoreContent}
-                        
-                        <div class="team">
-                            <img class="team-logo" 
-                                 src="${game.secund_team_logo}" 
-                                 alt="${game.secund_team}"
-                                 onerror="this.style.display='none'">
-                            <span class="team-name">${game.secund_team}</span>
-                        </div>
-                    </div>
-                    
-                    <div class="match-status">
-                        <span class="status-text ${statusClass}">
-                            ${game.statusText}${gameTime}
-                        </span>
-                        <span class="time-container">
-                            <span>${game.startyear}</span>
-                            <span>•</span>
-                            <span>${game.startTime}</span>
-                        </span>
-                    </div>
-                `;
-
-                container.appendChild(matchCard);
-            });
-        }
-        document.querySelector('.tabs-container').addEventListener('click', (e) => {
-            if (e.target.classList.contains('tab-btn')) {
-                document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-                e.target.classList.add('active');
-                filterMatches(e.target.dataset.filter);
+            if (existingMatch) {
+                // تحديث البطاقة الموجودة
+                updateExistingCard(existingMatch, game);
+                existingMatches.delete(game.id);
+            } else {
+                // إضافة بطاقة جديدة
+                container.appendChild(createMatchCard(game));
             }
         });
 
-        // بدء التحميل
-        fetchMatches();
+        // إزالة البطاقات المنتهية
+        existingMatches.forEach((value, key) => {
+            value.remove();
+        });
 
-        // التحديث التلقائي كل دقيقة
-        setInterval(fetchMatches, 60000);
-    </script>
+        // إعادة تطبيق الفلتر
+        filterMatches(activeTab);
+    }
+
+    // دالة تحديث البطاقة الموجودة
+    function updateExistingCard(card, game) {
+        // تحديث النتيجة
+        const scoreElement = card.querySelector('.score, .not-started');
+        if (game.statusText === 'لم تبدأ') {
+            if (scoreElement.className !== 'not-started') {
+                scoreElement.replaceWith(createNotStartedElement());
+            }
+        } else {
+            const newScore = `${game.first_team_score} - ${game.secund_team_score}`;
+            if (scoreElement.textContent !== newScore) {
+                if (scoreElement.className === 'not-started') {
+                    scoreElement.replaceWith(createScoreElement(newScore));
+                } else {
+                    scoreElement.textContent = newScore;
+                }
+            }
+        }
+
+        // تحديث الحالة
+        const statusElement = card.querySelector('.status-text');
+        const newStatus = `${game.statusText}${game.gameTime ? ` | ${game.gameTime}'` : ''}`;
+        if (statusElement.textContent !== newStatus) {
+            statusElement.textContent = newStatus;
+            statusElement.className = game.statusText.includes('شوط') ? 
+                'status-text live-status' : 'status-text';
+        }
+
+        // تحديث الوقت
+        const timeElement = card.querySelector('.time-container');
+        const newTime = `${game.startyear} • ${game.startTime}`;
+        if (timeElement.textContent !== newTime) {
+            timeElement.textContent = newTime;
+        }
+
+        // تحديث التاريخ للفلترة
+        card.dataset.date = game.startyear;
+    }
+
+    // دالة إنشاء عنصر النتيجة
+    function createScoreElement(score) {
+        const element = document.createElement('div');
+        element.className = 'score';
+        element.textContent = score;
+        return element;
+    }
+
+    // دالة إنشاء عنصر "لم تبدأ"
+    function createNotStartedElement() {
+        const element = document.createElement('div');
+        element.className = 'not-started';
+        element.textContent = 'لم تبدأ';
+        return element;
+    }
+
+    // دالة إنشاء بطاقة جديدة
+    function createMatchCard(game) {
+        const matchCard = document.createElement('div');
+        matchCard.className = 'match-card';
+        matchCard.dataset.id = game.id;
+        matchCard.dataset.date = game.startyear;
+
+        const statusClass = game.statusText.includes('شوط') ? 'live-status' : '';
+        const gameTime = game.gameTime ? ` | ${game.gameTime}'` : '';
+
+        const scoreContent = game.statusText === 'لم تبدأ' ? 
+            createNotStartedElement() :
+            createScoreElement(`${game.first_team_score} - ${game.secund_team_score}`);
+
+        matchCard.innerHTML = `
+            <div class="competition-name">${game.competitionDisplayName}</div>
+            
+            <div class="teams-container">
+                <div class="team">
+                    <img class="team-logo" 
+                         src="${game.first_team_logo}" 
+                         alt="${game.first_team}"
+                         onerror="this.style.display='none'">
+                    <span class="team-name">${game.first_team}</span>
+                </div>
+                
+                ${scoreContent.outerHTML}
+                
+                <div class="team">
+                    <img class="team-logo" 
+                         src="${game.secund_team_logo}" 
+                         alt="${game.secund_team}"
+                         onerror="this.style.display='none'">
+                    <span class="team-name">${game.secund_team}</span>
+                </div>
+            </div>
+            
+            <div class="match-status">
+                <span class="status-text ${statusClass}">
+                    ${game.statusText}${gameTime}
+                </span>
+                <span class="time-container">
+                    <span>${game.startyear}</span>
+                    <span>•</span>
+                    <span>${game.startTime}</span>
+                </span>
+            </div>
+        `;
+
+        return matchCard;
+    }
+
+    // دالة التصفية حسب التبويب
+    function filterMatches(filterType) {
+        const dates = getFormattedDates();
+        const allCards = document.querySelectorAll('.match-card');
+
+        allCards.forEach(card => {
+            const cardDate = card.dataset.date;
+            card.classList.remove('hidden');
+
+            if (filterType !== 'all') {
+                const shouldShow = 
+                    (filterType === 'yesterday' && cardDate === dates.yesterday) ||
+                    (filterType === 'today' && cardDate === dates.today) ||
+                    (filterType === 'tomorrow' && cardDate === dates.tomorrow);
+
+                if (!shouldShow) card.classList.add('hidden');
+            }
+        });
+    }
+
+    // إضافة حدث النقر على التبويبات
+    document.querySelector('.tabs-container').addEventListener('click', (e) => {
+        if (e.target.classList.contains('tab-btn')) {
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            e.target.classList.add('active');
+            filterMatches(e.target.dataset.filter);
+        }
+    });
+
+    // بدء التحميل الأولي
+    fetchMatches();
+
+    // التحديث التلقائي كل دقيقة
+    setInterval(fetchMatches, 60000);
+</script>
 </body>
 </html>
