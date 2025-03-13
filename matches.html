@@ -389,20 +389,24 @@
             
             <div class="teams-container">
                 <div class="team">
-                    <img class="team-logo" 
-                         src="${game.first_team_logo}" 
-                         alt="${game.first_team}"
-                         onerror="this.style.display='none'">
+                    <a href="team-row.html?teamid=${game.first_team_id}">
+                        <img class="team-logo" 
+                             src="${game.first_team_logo}" 
+                             alt="${game.first_team}"
+                             onerror="this.style.display='none'">
+                    </a>
                     <span class="team-name">${game.first_team}</span>
                 </div>
                 
                 ${scoreContent.outerHTML}
                 
                 <div class="team">
-                    <img class="team-logo" 
-                         src="${game.secund_team_logo}" 
-                         alt="${game.secund_team}"
-                         onerror="this.style.display='none'">
+                    <a href="team-row.html?teamid=${game.secund_team_id}">
+                        <img class="team-logo" 
+                             src="${game.secund_team_logo}" 
+                             alt="${game.secund_team}"
+                             onerror="this.style.display='none'">
+                    </a>
                     <span class="team-name">${game.secund_team}</span>
                 </div>
             </div>
