@@ -145,6 +145,20 @@
             font-weight: 600;
             margin: 0 25px;
         }
+        .aggregate-text {
+            color: #6c757d;
+            font-size: 14px;
+            text-align: center;
+            margin-top: 10px;
+        }
+        
+        .win-description {
+            color: #2b2d42;
+            font-size: 14px;
+            font-weight: 600;
+            text-align: center;
+            margin-top: 10px;
+        }
 
         @keyframes pulse {
             0% { opacity: 1; }
@@ -281,7 +295,7 @@
                 }
             }
         }
-
+    
         // تحديث الحالة
         const statusElement = card.querySelector('.status-text');
         const newStatus = `${game.statusText}${game.gameTime ? ` | ${game.gameTime}'` : ''}`;
@@ -290,14 +304,44 @@
             statusElement.className = game.statusText.includes('شوط') ? 
                 'status-text live-status' : 'status-text';
         }
-
+    
         // تحديث الوقت
         const timeElement = card.querySelector('.time-container');
         const newTime = `${game.startyear} • ${game.startTime}`;
         if (timeElement.textContent !== newTime) {
             timeElement.textContent = newTime;
         }
-
+    
+        // تحديث aggregateText إذا كانت القيمة ليست null
+        const aggregateTextElement = card.querySelector('.aggregate-text');
+        if (game.aggregateText) {
+            if (!aggregateTextElement) {
+                const newAggregateText = document.createElement('div');
+                newAggregateText.className = 'aggregate-text';
+                newAggregateText.textContent = game.aggregateText;
+                card.insertBefore(newAggregateText, card.querySelector('.match-status'));
+            } else {
+                aggregateTextElement.textContent = game.aggregateText;
+            }
+        } else if (aggregateTextElement) {
+            aggregateTextElement.remove();
+        }
+    
+        // تحديث winDescription إذا كانت القيمة ليست null
+        const winDescriptionElement = card.querySelector('.win-description');
+        if (game.winDescription) {
+            if (!winDescriptionElement) {
+                const newWinDescription = document.createElement('div');
+                newWinDescription.className = 'win-description';
+                newWinDescription.textContent = game.winDescription;
+                card.insertBefore(newWinDescription, card.querySelector('.match-status'));
+            } else {
+                winDescriptionElement.textContent = game.winDescription;
+            }
+        } else if (winDescriptionElement) {
+            winDescriptionElement.remove();
+        }
+    
         // تحديث التاريخ للفلترة
         card.dataset.date = game.startyear;
     }
@@ -324,14 +368,22 @@
         matchCard.className = 'match-card';
         matchCard.dataset.id = game.id;
         matchCard.dataset.date = game.startyear;
-
+    
         const statusClass = game.statusText.includes('شوط') ? 'live-status' : '';
         const gameTime = game.gameTime ? ` | ${game.gameTime}'` : '';
-
+    
         const scoreContent = game.statusText === 'لم تبدأ' ? 
             createNotStartedElement() :
             createScoreElement(`${game.first_team_score} - ${game.secund_team_score}`);
-
+    
+        // إضافة aggregateText إذا كانت القيمة ليست null
+        const aggregateTextContent = game.aggregateText ?
+            `<div class="aggregate-text">${game.aggregateText}</div>` : '';
+    
+        // إضافة winDescription إذا كانت القيمة ليست null
+        const winDescriptionContent = game.winDescription ?
+            `<div class="win-description">${game.winDescription}</div>` : '';
+    
         matchCard.innerHTML = `
             <div class="competition-name">${game.competitionDisplayName}</div>
             
@@ -355,6 +407,9 @@
                 </div>
             </div>
             
+            ${aggregateTextContent}
+            ${winDescriptionContent}
+            
             <div class="match-status">
                 <span class="status-text ${statusClass}">
                     ${game.statusText}${gameTime}
@@ -366,7 +421,7 @@
                 </span>
             </div>
         `;
-
+    
         return matchCard;
     }
 
